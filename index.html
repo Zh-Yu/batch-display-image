@@ -1,0 +1,93 @@
+<html lang="en">
+  <header>
+    <meta charset="utf-8">
+  </header>
+  <body>
+    <div class="container">
+      <div class="header">
+        <div style="text-align: center; color: #999; overflow: hidden; font-size: 12px">··················· 本页面用于根据传入文件批量展示用户头像，文件内容为图片地址，请注意逐一换行 ···················</div>
+        <input type="file" onchange="fileLoad(event)" style="margin-left: 50px">
+        <input id="currentIndex" type="number" onchange="changeIndex(value)" value=1 min=1>
+        共<span id="total">1</span><span>页，每页500条
+      </div>
+      <div id='img-container'></div>
+    </div>
+  </body>
+</html>
+<script>
+  document.title = 'Filter-Avatar'
+  var urlArr = []
+  function fileLoad(event) {
+    var file = event.target.files[0];
+    var reader = new FileReader();
+    reader.onload = function(event) {
+      urlArr = event.target.result.split('\n')
+      console.log(urlArr.length)
+      document.getElementById('total').innerHTML = Math.ceil(urlArr.length / 500)
+      document.getElementById('currentIndex').value = 1
+      paint(1)
+    }
+    reader.readAsText(file);
+  }
+  function changeIndex (value) {
+    paint(value)
+  }
+  function paint (index) {
+    var html = urlArr.slice((index - 1) * 500, index * 500)
+      .filter(Boolean)
+      .map(it => `<div><img src="${it.trim()}-c.w230.l" /><button class="copy" data-value=${it.trim()} onClick="copy(event)">复制</button></div>`)
+      .join('\n')
+    document.getElementById('img-container').innerHTML = html
+  }
+  function copy(e) {
+    const btn = document.querySelector('#btn');
+    const input = document.createElement('input');
+    document.body.appendChild(input);
+    input.setAttribute('value', e.target.dataset.value);
+    input.select();
+    if (document.execCommand('copy')) {
+      document.execCommand('copy');
+    }
+    document.body.removeChild(input);
+  }
+</script>
+<style>
+body {
+  margin: 0;
+  padding: 0;
+}
+.header {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  height: 70px;
+  line-height: 35px;
+  background: white;
+  z-index: 1;
+  padding-bottom: 10px;
+}
+#img-container {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 80px 50px 0;
+}
+#img-container > div {
+  width: 160px;
+  height: 220px;
+  margin-right: 20px;
+  box-sizing: content-box;
+  float: left;
+}
+#img-container > div > img{
+  width: 160px;
+  height: 160px;
+}
+#img-container > div > .copy{
+  margin-top: 20px;
+  width: 60px;
+  position: relative;
+  left: 50%;
+  margin-left: -30px;
+}
+</style>
+
